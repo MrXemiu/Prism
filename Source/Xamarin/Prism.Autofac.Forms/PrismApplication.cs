@@ -107,6 +107,6 @@ namespace Prism.Autofac.Forms
             Container =  builder.Build();
         }
 
-        public virtual void ConfigureContainer(ref ContainerBuilder builder) { }
+        protected virtual void ConfigureContainer(ref ContainerBuilder builder) { }
     }
 }
