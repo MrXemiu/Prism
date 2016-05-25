@@ -37,6 +37,8 @@ namespace Prism.Autofac.Forms
 
         public override void Initialize()
         {
+            Logger = CreateLogger();
+
             ConfigureContainer();
 
             ModuleCatalog = CreateModuleCatalog();
@@ -60,7 +62,7 @@ namespace Prism.Autofac.Forms
 
         protected override INavigationService CreateNavigationService()
         {
-            return Container.Resolve<INavigationService>();
+            return Container.ResolveNamed<INavigationService>("navigationService");
         }
 
         protected override void ConfigureViewModelLocator()
@@ -72,7 +74,7 @@ namespace Prism.Autofac.Forms
                 var page = view as Page;
                 if (page != null)
                 {
-                    var navService = Container.Resolve<AutofacNavigationService>();
+                    var navService = Container.Resolve<INavigationService>();
                     ((IPageAware)navService).Page = page;
 
                     overrides = new List<Parameter>

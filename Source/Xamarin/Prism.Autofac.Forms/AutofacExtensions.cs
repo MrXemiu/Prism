@@ -8,11 +8,11 @@ namespace Prism.Autofac.Forms
 {
     public static class AutofacExtensions
     {
-
         /// <summary>
         /// Registers an instance of T to be stored in the container.
         /// </summary>
         /// <typeparam name="T">Type of instance</typeparam>
+        /// <param name="container"></param>
         /// <param name="instance">Instance of type T.</param>
         public static IContainer Register<T>(this IContainer container, T instance) where T : class
         {
@@ -41,6 +41,7 @@ namespace Prism.Autofac.Forms
         /// Tries to register a type
         /// </summary>
         /// <typeparam name="T">Type of instance</typeparam>
+        /// <param name="container"></param>
         /// <param name="type">Type of implementation</param>
         public static IContainer Register<T>(this IContainer container, Type type) where T : class
         {
@@ -53,6 +54,7 @@ namespace Prism.Autofac.Forms
         /// <summary>
         /// Tries to register a type
         /// </summary>
+        /// <param name="container"></param>
         /// <param name="type">Type to register.</param>
         /// <param name="impl">Type that implements registered type.</param>
         public static IContainer Register(this IContainer container, Type type, Type impl)
@@ -71,7 +73,7 @@ namespace Prism.Autofac.Forms
         public static void RegisterTypeForNavigation<T>(this IContainer container) where T : Page
         {
             var builder = new ContainerBuilder();
-            builder.RegisterTypeForNavigation<T>(typeof(T).Name);
+            builder.RegisterTypeForNavigation<T>(typeof(T).FullName);
             builder.Update(container);
         }
 
@@ -79,6 +81,7 @@ namespace Prism.Autofac.Forms
         /// Registers a Page for navigation.
         /// </summary>
         /// <typeparam name="T">The Type of Page to register</typeparam>
+        /// <param name="container"></param>
         /// <param name="name">The unique name to register with the Page</param>
         public static void RegisterTypeForNavigation<T>(this IContainer container, string name) where T : Page
         {
@@ -96,7 +99,7 @@ namespace Prism.Autofac.Forms
         /// </summary>
         /// <typeparam name="T">The Type of Page to register</typeparam>
         /// <typeparam name="C">The Class to use as the unique name for the Page</typeparam>
-        /// <param name="kernel"></param>
+        /// <param name="container"></param>
         public static void RegisterTypeForNavigation<T, C>(this IContainer container)
             where T : Page
             where C : class
@@ -118,13 +121,14 @@ namespace Prism.Autofac.Forms
         /// <typeparam name="T">The Type of Page to register</typeparam>
         public static void RegisterTypeForNavigation<T>(this ContainerBuilder builder) where T : Page
         {
-            builder.RegisterTypeForNavigation<T>(typeof(T).Name);
+            builder.RegisterTypeForNavigation<T>(typeof(T).FullName);
         }
 
         /// <summary>
         /// Registers a Page for navigation.
         /// </summary>
         /// <typeparam name="T">The Type of Page to register</typeparam>
+        /// <param name="builder"></param>
         /// <param name="name">The unique name to register with the Page</param>
         public static void RegisterTypeForNavigation<T>(this ContainerBuilder builder, string name) where T : Page
         {
@@ -139,7 +143,7 @@ namespace Prism.Autofac.Forms
         /// </summary>
         /// <typeparam name="T">The Type of Page to register</typeparam>
         /// <typeparam name="C">The Class to use as the unique name for the Page</typeparam>
-        /// <param name="kernel"></param>
+        /// <param name="builder"></param>
         public static void RegisterTypeForNavigation<T, C>(this ContainerBuilder builder)
             where T : Page
             where C : class

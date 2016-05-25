@@ -10,10 +10,15 @@ using Autofac.Core.Activators.Delegate;
 using Autofac.Core.Activators.ProvidedInstance;
 using Autofac.Core.Lifetime;
 using Autofac.Core.Registration;
+using Prism.Services;
 using Xamarin.Forms;
+using DependencyService = Xamarin.Forms.DependencyService;
 
 namespace Prism.Autofac.Forms.Extensions
 {
+    /// <summary>
+    /// Searches Xamarin.Forms.DependencyService for Dependencies that aren't registered with Autofac
+    /// </summary>
     public class DependencyServiceRegistrationSource : IRegistrationSource
     {
 
@@ -21,6 +26,9 @@ namespace Prism.Autofac.Forms.Extensions
 
         public IEnumerable<IComponentRegistration> RegistrationsFor(Service service, Func<Service, IEnumerable<IComponentRegistration>> registrationAccessor)
         {
+            var registrations = registrationAccessor(service).ToList();
+
+            if (registrations.Any()) return registrations;
 
             var swt = service as IServiceWithType;
             if (swt == null)
@@ -28,29 +36,26 @@ namespace Prism.Autofac.Forms.Extensions
                 return Enumerable.Empty<IComponentRegistration>();
             }
 
-            var instance = ResolveFromDependencyService(swt.ServiceType);
+            var method = typeof(DependencyService).GetTypeInfo().GetDeclaredMethod("Get");
+            var genericMethod = method.MakeGenericMethod(swt.ServiceType);
+            var dependencyService = genericMethod.Invoke(null, new object []{ DependencyFetchTarget.GlobalInstance });
 
-            var registration = new ComponentRegistration(
-                Guid.NewGuid(),
-                new ProvidedInstanceActivator(instance),
-                new CurrentScopeLifetime(),
-                InstanceSharing.None,
-                InstanceOwnership.OwnedByLifetimeScope,
-                new[] { service },
-                new Dictionary<string, object>());
-
-            return new IComponentRegistration[] { registration };
-        }
-
-        private static object ResolveFromDependencyService(Type targetType)
-        {
-            if (targetType.GetTypeInfo().IsInterface)
+            if (dependencyService != null)
             {
-                MethodInfo method = typeof(DependencyService).GetTypeInfo().GetDeclaredMethod("Get");
-                MethodInfo genericMethod = method.MakeGenericMethod(targetType);
-                return genericMethod.Invoke(null, new object[] { DependencyFetchTarget.GlobalInstance });
+
+                var registration = new ComponentRegistration(
+                    Guid.NewGuid(),
+                    new ProvidedInstanceActivator(dependencyService),
+                    new CurrentScopeLifetime(),
+                    InstanceSharing.None,
+                    InstanceOwnership.OwnedByLifetimeScope,
+                    new[] {service},
+                    new Dictionary<string, object>());
+
+                return new IComponentRegistration[] {registration};
             }
-            return null;
+
+            return Enumerable.Empty<IComponentRegistration>();
         }
     }
 }
